@@ -1,6 +1,6 @@
 <?php
 /*
- * MongoDB Quick Query Library - Mongoq ver 0.32
+ * MongoDB Quick Query Library - Mongoq ver 0.34
  * www.nekoromancer.kr
  *
  * Author : Nekoromancer
@@ -8,7 +8,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-02-04
+ * Date: 2014-04-17
  */
 
 defined('BASEPATH') OR exit('No direct script access allowed');
@@ -129,7 +129,7 @@ class Mongoq{
 		}
 
 		$result = $this->db->{$collection}
-				   		   ->remove( $this->wheres, $this->woptions );
+				   		         ->remove( $this->wheres, $this->woptions );
 
 		$this->_clear();
 
@@ -259,17 +259,17 @@ class Mongoq{
 		if( $this->limit )
 		{
 			$documents = $this->db->{$collection}
-						->find( $this->wheres, $this->projection )
-						->skip( $this->skip )
-						->limit( $this->limit )
-						->sort( $this->sort );
+														->find( $this->wheres, $this->projection )
+														->skip( $this->skip )
+														->limit( $this->limit )
+														->sort( $this->sort );
 		}
 		else
 		{
 			$documents = $this->db->{$collection}
-						->find( $this->wheres, $this->projection )
-						->skip( $this->skip )
-						->sort( $this->sort );
+														->find( $this->wheres, $this->projection )
+														->skip( $this->skip )
+														->sort( $this->sort );
 		}
 
 		if( $return_as_array )
@@ -309,8 +309,8 @@ class Mongoq{
 		else 
 		{
 			$result = $this->db->{$collection}
-				 	  ->distinct( $field, $this->wheres )
-				  	  ->sort( $this->sort );
+				 	  						 ->distinct( $field, $this->wheres )
+				  	 						 ->sort( $this->sort );
 
 			$this->_clear();
 
@@ -514,9 +514,12 @@ class Mongoq{
 			show_error( "Insert Error.  Please Check Your Syntax of Query", 500 );
 		}
 
-		try {
+		try 
+		{
 			$this->db->{$collection}->insert( $documents, $this->woptions );
-		} catch( MongoException $e ) {
+		} 
+		catch( MongoException $e ) 
+		{
 			show_error( "DB insert error : ".$e->getMessage() );
 		}
 
@@ -542,9 +545,12 @@ class Mongoq{
 		
 		$option = array();
 
-		try {
+		try 
+		{
 			$this->db->{$collection}->save( $documents, $this->woptions );
-		} catch( MongoException $e ) {
+		} 
+		catch( MongoException $e ) 
+		{
 			show_error( "DB insert error : ".$e->getMessage() );
 		}
 
@@ -630,6 +636,32 @@ class Mongoq{
 		}
 	}
 
+	public function max( $max_value = null )
+	{
+		if( !$max_value )
+		{
+			return ( $this );
+		}
+		else
+		{
+			$this->setUpdateOptions( '$max', $max_value );
+			return ( $this );
+		}
+	}
+
+	public function min( $min_value = null )
+	{
+		if( !$min_value )
+		{
+			return ( $this );
+		}
+		else
+		{
+			$this->setUpdateOptions( '$min', $min_value );
+			return ( $this );
+		}
+	}
+
 	public function update( $upsert = false, $multi = false )
 	{
 		$collection = &$this->collection;
@@ -656,13 +688,16 @@ class Mongoq{
 			$this->woptions['upsert'] = $upsert;
 			$this->woptions['multiple'] = $multi;
 
-			try {
+			try 
+			{
 				$this->db->{$collection}->update( $query, 
-												  $this->updates, 
-												  $this->woptions );
+																				  $this->updates, 
+																				  $this->woptions );
 
 				$this->_clear();
-			} catch( MongoException $e ) {
+			} 
+			catch( MongoException $e ) 
+			{
 				show_error( 'DB update error : '.$e->getMessage() );
 			}
 		}
@@ -682,12 +717,15 @@ class Mongoq{
 		}
 		else
 		{
-			try {
+			try 
+			{
 				$result = $this->db->{$collection}->count( $this->wheres );
 				$this->_clear();
 
 				return $result;
-			} catch( MongoException $e ) {
+			} 
+			catch( MongoException $e ) 
+			{
 				show_error( 'count() : unknown error : '.$e->getMessage() );
 			}
 		}
@@ -730,12 +768,13 @@ class Mongoq{
 			$finalize = new MongoCode( '' );
 		}
 
-		try {
+		try 
+		{
 			$result = $this->db->{$collection}->group( $keyf,
 													   $initial,
 													   $reduce,
 													   array( 'condition' => $cond,
-													   		  'finalize' => $finalize ) );
+													   		    'finalize' => $finalize ) );
 			$this->_clear();
 
 			if( $result[ 'ok' ] == 1 )
@@ -747,7 +786,9 @@ class Mongoq{
 				return false;
 			}
 
-		} catch( MongoException $e ) {
+		} 
+		catch( MongoException $e ) 
+		{
 			show_error( 'group() : unknown error : '.$e->getMessage() );
 		}
 	}
@@ -870,8 +911,8 @@ class Mongoq{
 	 *
 	 * if you want input more expression, use array like this
 	 * 		ex) $where = array( array( 'foo_1', '>', 'bar_1' ),
-	 *							array( 'foo_2', '<', 'bar_2' ),
-	 *										...                  );
+	 *						           	array( 'foo_2', '<', 'bar_2' ),
+	 *									                	...                  );
 	 *			$result = $this->mongoq->where( $where )-> ... ; 
 	 */
 
@@ -938,9 +979,9 @@ class Mongoq{
 	 *		$value : value
 	 *
 	 * 		ex) $not_where = array( array( 'foo_1', '>', 'bar_1' ),
-	 *						        array( 'foo_2', '<', 'bar_2' ),
-	 *										...                  );
-	 *			$result = $this->mongoq->notWhere( $nor_where )-> ... find( 'collection_name' ); 
+	 *						                array( 'foo_2', '<', 'bar_2' ),
+	 *									                    	...                );
+	 *			  $result = $this->mongoq->notWhere( $nor_where )-> ... find( 'collection_name' ); 
 	 */
 	
 	public function notWhere( $where = array() )
@@ -956,16 +997,16 @@ class Mongoq{
 	/*
 	 * norWhere() performs a logical NOR operation on an array of tow or more expressions.
 	 * 		systax : $nor_where = array( array ( $field , $operator, $value ), ... ); 
-	 *				 $this->mongoq->norWhere( $nor_where )-> ... ->find( $collection );
+	 *				     $this->mongoq->norWhere( $nor_where )-> ... ->find( $collection );
 	 *
 	 *		$field : field name
 	 *		$operator : comparison query operators
 	 *		$value : value
 	 *
 	 * 		ex) $nor_where = array( array( 'foo_1', '>', 'bar_1' ),
-	 *						        array( 'foo_2', '<', 'bar_2' ),
-	 *										...                  );
-	 *			$result = $this->mongoq->norWhere( $nor_where )-> ... find( 'collection_name' ); 
+	 *						                array( 'foo_2', '<', 'bar_2' ),
+	 *										                   ...                  );
+	 *			  $result = $this->mongoq->norWhere( $nor_where )-> ... find( 'collection_name' ); 
 	 */
 	
 	public function norWhere( $where = array() )
@@ -976,6 +1017,22 @@ class Mongoq{
 		}
 		
 		return ( $this );
+	}
+
+	public function id( $mongoId = null )
+	{
+		$_id = '';
+
+		try 
+		{
+			$_id = new MongoId( $mongoId );
+		} 
+		catch( MongoException $e ) 
+		{
+			show_error( 'Error. Invalid Mongo ID / '.$e->getMessage(), 500 );
+		}
+
+		return $_id;
 	}
 
 	/*
@@ -990,13 +1047,16 @@ class Mongoq{
 		{
 			$option["replicaSet"] = $this->replica;
 
-			try {
+			try 
+			{
 			$this->connection = new MongoClient( $this->connection_string, $option );
 			$this->db = $this->connection->{$this->dbname};
 
 			return ( $this );
 
-			} catch( MongoConnectionException $e ) {
+			} 
+			catch( MongoConnectionException $e ) 
+			{
 				die( $e->getMessage() );
 			}
 		}
@@ -1011,7 +1071,9 @@ class Mongoq{
 
 				return ( $this );
 
-			} catch( MongoConnectionException $e ) {
+			} 
+			catch( MongoConnectionException $e ) 
+			{
 				die( $e->getMessage() );
 			}
 		}
@@ -1053,11 +1115,11 @@ class Mongoq{
 	private function connectionString()
 	{
 		$connection_string = "mongodb://".
-							  $this->username.":".
-							  $this->password."@".
-							  $this->hostname.":".
-							  $this->port."/".
-							  $this->dbname;
+												 $this->username.":".
+												 $this->password."@".
+												 $this->hostname.":".
+												 $this->port."/".
+  											 $this->dbname;
 
 		$this->connection_string = $connection_string;
 	}
