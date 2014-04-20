@@ -324,15 +324,15 @@ class Mongoq{
 	 * if $except(default false) is true, returns all fields except $projection
 	 */
 
-	public function select( $projection = array(), $except = false )
+	public function select( $projection = array(), $is_select = true )
 	{
-		if( $except )
+		if( $is_select )
 		{
-			$value = 0;
+			$value = 1;
 		}
 		else
 		{
-			$value = 1;
+			$value = 0;
 		}
 
 		foreach( $projection as $item )
