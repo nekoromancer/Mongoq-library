@@ -98,11 +98,60 @@ SELET      name, age
 FROM       collection;
 ```
 
-select() 함수에서는 두번째 매개변수를 통해 특정 필드를 제외하고 데이터를 인출할 수 있습니다.  Document에 name, age, address라는 필드가 있다고 가정하고 age를 제외한 전체 필드를 인출한다면, 
+select() 함수에서는 두번째 매개변수를 통해 특정 필드를 제외하고 데이터를 인출할 수 있습니다.  Document에 name, age, address라는 필드가 있다고 가정합니다.
 
 ```php
-$this->mongoq->select( array( 'age' ), true );
+$this->mongoq->select( array( 'age' ), fasle );
 $this->mongoq->from('collection');
 
 $result = $this->mongoq->get();
 ```
+이 코드는 age 필드를 제외한 전체 필드를 인출할 것입니다.
+ 
+## c. where()
+sql에서 WHERE 구문에 해당합니다.  다수의 조건을 할당할 경우 where() 함수는 부여된 조건문들을 and 로 묶습니다.  다른 논리연산자로 조건을 묶기 위해서는 별도의 함수가 마련되어 있습니다.
+
+where()를 이용해 조건을 부여하는 방법에는 두 가지가 마련되어 있습니다.  첫번째는 한번에 하나의 조건을 입력하는 것입니다.
+
+```php
+$this->mongoq->from('collection');
+$this->mongoq->where( 'name', '=', 'neko' );
+
+$result = $this->mongoq->get();
+```
+조건문의 입력순서는 필드명, 조건연산자, 값입니다.  위 코드는 다음 sql 쿼리문에 해당합니다.
+
+```
+SELECT    *
+FROM      collection
+WHERE     name = 'neko';
+```
+
+다수의 조건을 부여하기 위해서는 2차원 배열을 사용합니다.
+
+```
+$wheres = array(
+                 array( 'name', '=', 'neko' ),
+                 array( 'age', '>', 18 )
+               );
+
+$this->mongoq->from('collection');
+$this->mongoq->where( $wheres );
+
+$result = $this->mongoq->get();
+```
+
+위 코드는 name 필드가 neko이고 age가 18보다 큰 Document를 collection이라는 이름의 콜랙션에서 인출합니다.  sql 쿼리문으로 변경하면 다음과 같습니다.
+
+```
+SELECT    *
+FROM      collection
+WHERE     name = 'neko' AND age > 18;
+```
+
+조건을 부여하기 위한 비교연산자는 '=', '>', '<', '>=', '<=', '<>', '!=', 'in', 'not in', 'like' 입니다.  <> 와 != 연산자는 동일하게 작동합니다.  
+
+like 연산자는 편의상 sql의 like 연산자처럼 작동하지만 본래 MongoDB 명세상 정규식을 활용한 조건을 부여합니다.  MongoQ 라이브러리에서는 /value/i 형태(대소문자 구분없이 value를 포함한 구문)의 정규식을 생성하여 입력하게 되며 이는 sql문의 like 연산자처럼 작동하게 됩니다.
+
+## d. orWhere(), notWhere(), norWhere()
+where()와 마찬가지로 조건문을 부여하기 위한 함수입니다.  이름에서 알 수 있듯이 각각의 조건을 orWhere()는 or로, notWhere()는 not으로, notWhere()는 nor로 묶습니다.  그외의 사용법은 where()와 동일합니다. 
