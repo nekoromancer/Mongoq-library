@@ -8,7 +8,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-04-17
+ * Date: 2014-04-21
  */
 
 defined('BASEPATH') OR exit('No direct script access allowed');
@@ -324,15 +324,15 @@ class Mongoq{
 	 * if $except(default false) is true, returns all fields except $projection
 	 */
 
-	public function select( $projection = array(), $is_select = true )
+	public function select( $projection = array(), $except = false )
 	{
-		if( $is_select )
+		if( $except )
 		{
-			$value = 1;
+			$value = 0;
 		}
 		else
 		{
-			$value = 0;
+			$value = 1;
 		}
 
 		foreach( $projection as $item )
@@ -771,10 +771,10 @@ class Mongoq{
 		try 
 		{
 			$result = $this->db->{$collection}->group( $keyf,
-													   $initial,
-													   $reduce,
-													   array( 'condition' => $cond,
-													   		    'finalize' => $finalize ) );
+																							   $initial,
+																							   $reduce,
+																							   array( 'condition' => $cond,
+																							   		    'finalize' => $finalize ) );
 			$this->_clear();
 
 			if( $result[ 'ok' ] == 1 )
@@ -927,18 +927,9 @@ class Mongoq{
 			$operator = strtolower( $operator );
 			$operator = $this->_setOperator( $operator );
 
-			if( !$operator )
-			{
-				show_error( "Wrong operator" );
-			}
-			else if( $operator == 'eq' )
-			{
-				$this->wheres[ $where ] = $value;
-			}
-			else
-			{
-				$this->wheres[ $where ][ $operator ] = $value;
-			}
+			$expression = $this->createExpression( $where, $operator, $value );
+
+			array_push( $this->wheres[ '$and' ], $expression );
 		}
 
 		return ( $this );
@@ -984,13 +975,22 @@ class Mongoq{
 	 *			  $result = $this->mongoq->notWhere( $nor_where )-> ... find( 'collection_name' ); 
 	 */
 	
-	public function notWhere( $where = array() )
+	public function notWhere( $where = array(), $operator = null, $value = null )
 	{
 		if( is_array( $where ) )
 		{
 			$this->inputExpression( '$not', $where );
 		}
-		
+		else
+		{
+			$operator = strtolower( $operator );
+			$operator = $this->_setOperator( $operator );
+
+			$expression = $this->createExpression( $where, $operator, $value );
+
+			array_push( $this->wheres[ '$not' ], $expression );
+		}
+
 		return ( $this );
 	}
 	
