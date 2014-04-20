@@ -154,4 +154,6 @@ WHERE     name = 'neko' AND age > 18;
 like 연산자는 편의상 sql의 like 연산자처럼 작동하지만 본래 MongoDB 명세상 정규식을 활용한 조건을 부여합니다.  MongoQ 라이브러리에서는 /value/i 형태(대소문자 구분없이 value를 포함한 구문)의 정규식을 생성하여 입력하게 되며 이는 sql문의 like 연산자처럼 작동하게 됩니다.
 
 ## d. orWhere(), notWhere(), norWhere()
-where()와 마찬가지로 조건문을 부여하기 위한 함수입니다.  이름에서 알 수 있듯이 각각의 조건을 orWhere()는 or로, notWhere()는 not으로, notWhere()는 nor로 묶습니다.  그외의 사용법은 where()와 동일합니다. 
+where()와 마찬가지로 조건문을 부여하기 위한 함수입니다.  이름에서 알 수 있듯이 각각의 조건을 orWhere()는 or로, notWhere()는 not으로, notWhere()는 nor로 묶습니다.  그외의 사용법은 where()와 동일합니다.
+
+단, orWhere()의 경우 or 연산이 하나의 조건문에서는 의미를 갖지 않기 때문에 where()에서와 같이 배열을 사용하지 않는 조건문 부여 방식은 허용되지 않습니다.  orWhere()에서 배열을 사용하지 않는 구문을 입력할 경우 에러가 발생할 것입니다.
