@@ -291,7 +291,7 @@ save()의 사용법은 insert()와 동일합니다.  먼저 데이터를 준비�
 
 ```
 {
-  "_id"  : ObjectID( 52b6e9f94a6befa37cfe50da )
+  "_id"  : ObjectID( 52b6e9f94a6befa37cfe50da ),
   "name" : "Neko",
   "age"  : 20,
   "language" : [ "KR", "JP" ]
