@@ -1,6 +1,6 @@
 <?php
 /*
- * MongoDB Quick Query Library - Mongoq ver 0.34
+ * MongoDB Quick Query Library - Mongoq ver 0.4
  * www.nekoromancer.kr
  *
  * Author : Nekoromancer
@@ -8,7 +8,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-04-21
+ * Date: 2014-04-22
  */
 
 defined('BASEPATH') OR exit('No direct script access allowed');
