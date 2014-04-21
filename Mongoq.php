@@ -735,39 +735,47 @@ class Mongoq{
 	 * db.collection.group();
 	 */
 
-	public function group( $keyf = null, $initial = array(), $reduce = null, $finalize = null )
+	public function group( $options = array() )
 	{
-		if( !$keyf )
+		$cond = &$this->wheres;
+		$collection = &$this->collection;
+
+		if( isset($options['keyf']) )
+		{
+			$keyf = new MongoCode( $options['keyf'] );
+		}
+		else
 		{
 			$keyf = $this->projection;
 		}
-		else
-		{
-			$keyf = new MongoCode( $keyf );
-		}
 
-		$cond = $this->wheres;
-		$collection = &$this->collection;
-
-		if( $reduce )
+		if( isset($options['reduce']) )
 		{
-			$reduce = new MongoCode( $reduce );
+			$reduce = new MongoCode( $options['reduce'] );
 		}
 		else
 		{
-			$default = 'function( curr, result ) {}';
-			$reduce = new MongoCode( $default );
+			$reduce = new MongoCode('function( curr, result ) {}');
 		}
-		
-		if( $finalize )
+
+		if( isset($options['finalize']) )
 		{
-			$finalize = new MongoCode( $finalize );
+			$finalize = new MongoCode( $options['finalize'] );
 		}
 		else
 		{
 			$finalize = new MongoCode( '' );
 		}
 
+		if( isset($options['initial']) )
+		{
+			$initial = &$options['initial'];
+		}
+		else
+		{
+			$initial = array();
+		}
+		
 		try 
 		{
 			$result = $this->db->{$collection}->group( $keyf,
