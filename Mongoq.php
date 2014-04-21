@@ -420,7 +420,7 @@ class Mongoq{
 	 *		value : 1, -1, asc or desc
 	 */
 
-	public function sort( $sort = array() )
+	public function sort( $sort = array(), $by = null )
 	{
 		if( empty( $sort ) )
 		{
