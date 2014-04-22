@@ -1,6 +1,6 @@
 <?php
 /*
- * MongoDB Quick Query Library - Mongoq ver 0.4
+ * MongoDB Quick Query Library - Mongoq ver 0.42
  * www.nekoromancer.kr
  *
  * Author : Nekoromancer
@@ -8,7 +8,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-04-22
+ * Date: 2014-04-23
  */
 
 defined('BASEPATH') OR exit('No direct script access allowed');
@@ -431,22 +431,22 @@ class Mongoq{
 		{
 			$field = $sort[0];
 
-                if( $by == 1 || $by == -1 )
-                {
-                    $by = $by;
-                }
-                else if( gettype( $by ) == 'string' && strtolower( $by ) == 'asc' )
-                {
-                    $by = 1;
-                }
-                else if( gettype( $by ) == 'string' && strtolower( $by ) == 'desc' )
-                {
-                    $by = -1;
-                }
-                else
-                {
-                    show_error( "sort() : incorrect parameter", 500 );
-                }
+      if( $by == 1 || $by == -1 )
+      {
+          $by = $by;
+      }
+      else if( gettype( $by ) == 'string' && strtolower( $by ) == 'asc' )
+      {
+          $by = 1;
+      }
+      else if( gettype( $by ) == 'string' && strtolower( $by ) == 'desc' )
+      {
+          $by = -1;
+      }
+      else
+      {
+          show_error( "sort() : incorrect parameter", 500 );
+      }
 		
 			$this->sort[ $field ] = $by;
 
@@ -561,13 +561,13 @@ class Mongoq{
 	 * db.collection.update()
 	 */
 
-	private function setUpdateOptions( $opt, $values )
+	private function setUpdateOptions( $opt, $args )
 	{
 		if( !isset( $this->updates[$opt] ) )
 		{
 			$this->update[$opt] = array();
 		}
-
+		
 		if( $opt == '$unset')
 		{
 			foreach( $values as $each_item )
@@ -577,89 +577,175 @@ class Mongoq{
 		}
 		else
 		{
-			foreach( $values as $key => $value )
+			if( !is_array( $args[0] ) )
 			{
-				$this->updates[ $opt ][ $key ] = $value;
+				$key = array_shift( $args );
+				$value = array_shift( $value );
+				$this->updates[ $opt ][ $key ] = $value;	
+			}
+			else
+			{
+				$values = &$args[0];
+				foreach( $values as $key => $value )
+				{
+					$this->updates[ $opt ][ $key ] = $value;
+				}
 			}
 		}
 	}
 
-	public function set( $set = null )
+	public function set()
 	{
-		if( !$set )
+		$args = func_get_args();
+
+		if( empty( $args ) )
 		{
-			return ( $this );
+			return( $this );
 		}
 		else
 		{
-			$this->setUpdateOptions( '$set', $set );
-			return ( $this );
+			$this->setUpdateOptions( '$set', $args );
 		}
+		return ( $this );
 	}
 
-	public function inc( $inc = null )
+	public function inc()
 	{
-		if( !$inc )
+		$args = func_get_args();
+
+		if( empty( $args ) )
 		{
-			return ( $this );
+			return( $this );
 		}
 		else
 		{
-			$this->setUpdateOptions( '$inc', $inc );
-			return ( $this );
+			$this->setUpdateOptions( '$inc', $args );
 		}
+		return ( $this );
 	}
 
-	public function unsetField( $unset = null )
+	public function unsetField()
 	{
-		if( !$unset )
+		if( empty( $args ) )
 		{
-			return ( $this );
+			return( $this );
 		}
 		else
 		{
-			$this->setUpdateOptions( '$unset', $unset );
-			return ( $this );
+			$this->setUpdateOptions( '$unset', $args );
 		}
+		return ( $this );
 	}
 
-	public function setOnInsert( $set_on_insert = null )
+	public function setOnInsert()
 	{
-		if( !$set_on_insert )
+		$args = func_get_args();
+
+		if( empty( $args ) )
 		{
-			return ( $this );
+			return( $this );
 		}
 		else
 		{
-			$this->setUpdateOptions( '$setOnInsert', $set_on_insert );
-			return ( $this );
+			$this->setUpdateOptions( '$setOnInsert', $args );
 		}
+		return ( $this );
 	}
 
-	public function max( $max_value = null )
+	public function max()
 	{
-		if( !$max_value )
+		$args = func_get_args();
+
+		if( empty( $args ) )
 		{
-			return ( $this );
+			return( $this );
 		}
 		else
 		{
-			$this->setUpdateOptions( '$max', $max_value );
-			return ( $this );
+			$this->setUpdateOptions( '$max', $args );
 		}
+		return ( $this );
 	}
 
-	public function min( $min_value = null )
+	public function min()
 	{
-		if( !$min_value )
+		$args = func_get_args();
+
+		if( empty( $args ) )
 		{
-			return ( $this );
+			return( $this );
 		}
 		else
 		{
-			$this->setUpdateOptions( '$min', $min_value );
-			return ( $this );
+			$this->setUpdateOptions( '$min', $args );
 		}
+		return ( $this );
+	}
+
+	public function mul()
+	{
+		$args = func_get_args();
+
+		if( empty( $args ) )
+		{
+			return( $this );
+		}
+		else
+		{
+			$this->setUpdateOptions( '$mul', $args );
+		}
+		return ( $this );
+	}
+
+	public function rename()
+	{
+		$args = func_get_args();
+		
+		if( is_array( $args[0] ) )
+		{
+			$renames = array_shift( $args );
+			$this->updates['$rename'] = array();
+			array_push( $this->updates['$rename'], $renames );
+		}
+		else
+		{
+			$oldName = array_shift( $args );
+			$newName = array_shift( $args );
+
+			$this->updates['$rename'] = array( $oldName => $newName );
+		}
+
+		return( $this );
+	}
+
+	public function now()
+	{
+		$args = func_get_args();
+
+		if( is_array( $args[0] ) )
+		{
+			$dates = array_shift( $args );
+			$this->updates['$currentDate'] = array();
+			array_push( $this->updates['$currentDate'], $dates );
+		}
+		else
+		{
+			$field = array_shift( $args );
+			$value = array_shift( $args );
+			if( !$value )
+			{
+				$value = true;
+			}
+			else if( strtolower( $value ) === 'ts' || strtolower( $value ) === 'timestamp' )
+			{
+				$value = array( '$type' => 'timestamp' );
+			}
+
+			$this->updates['$currentDate'] = array();
+			array_push( $this->updates['$currentDate'], $value );
+		}
+
+		return( $this );
 	}
 
 	public function update( $upsert = false, $multi = false )
@@ -673,20 +759,20 @@ class Mongoq{
 
 		$query = $this->wheres;
 
-		if( empty( $this->updates[ '$set' ] ) && empty( $this->updates[ '$inc' ] ) )
+		if( empty( $this->updates ) )
 		{
-			show_error( 'update() : $set or $inc is empty', 500 );
+			show_error( 'update() : update option is empty', 500 );
 		}
 		else
 		{
 			if( isset( $this->updates['$setOnInsert'] ) && 
-				!empty( $this->updates[ '$setOnInsert' ] ) )
+				  !empty( $this->updates['$setOnInsert'] ) )
 			{
 				$upsert = true;
 			}
 
-			$this->woptions['upsert'] = $upsert;
-			$this->woptions['multiple'] = $multi;
+			$this->options['upsert'] = $upsert;
+			$this->options['multiple'] = $multi;
 
 			try 
 			{
@@ -908,13 +994,13 @@ class Mongoq{
 	 *		$field : field name
 	 *		$operator : comparison query operators
 	 * 			'=' is equal
-	 *          '>' is greater than( $gt )
+	 *      '>' is greater than( $gt )
 	 *			'>=' is greater than or equal to( $gte )
 	 *			'<' is less than( $lt )
 	 *			'<=' is less than or equal to( $lte )
 	 *			'in' is exist in( $in )
 	 *			'not in' is not exist in( $nin )
-	 *		    '<>' or '!=' is not eqaul( $ne )
+	 *		  '<>' or '!=' is not eqaul( $ne )
 	 *		$value : value
 	 *
 	 * if you want input more expression, use array like this
@@ -926,16 +1012,18 @@ class Mongoq{
 
 	public function where( $where = array(), $operator = null, $value = null )
 	{
-		if( is_array( $where ) )
+		if( is_array( $where ) && !empty( $where ) )
 		{
 			$this->inputExpression( '$and', $where );
 		}
 		else
 		{
-			$operator = strtolower( $operator );
-			$operator = $this->_setOperator( $operator );
-
 			$expression = $this->createExpression( $where, $operator, $value );
+			
+			if( !isset( $this->wheres[ '$and' ] ) )
+			{
+				$this->wheres[ '$and' ] = array();
+			}
 
 			array_push( $this->wheres[ '$and' ], $expression );
 		}
@@ -953,8 +1041,8 @@ class Mongoq{
 	 *		$value : value
 	 *
 	 * 		ex) $or_where = array( array( 'foo_1', '>', 'bar_1' ),
-	 *						       array( 'foo_2', '<', 'bar_2' ),
-	 *										...                 );
+	 *						        array( 'foo_2', '<', 'bar_2' ),
+	 *									              	...                 );
 	 *			$result = $this->mongoq->orWhere( $or_where )-> ... find( 'collection_name' ); 
 	 */
 
@@ -985,16 +1073,18 @@ class Mongoq{
 	
 	public function notWhere( $where = array(), $operator = null, $value = null )
 	{
-		if( is_array( $where ) )
+		if( is_array( $where ) && !empty( $where ) )
 		{
 			$this->inputExpression( '$not', $where );
 		}
 		else
 		{
-			$operator = strtolower( $operator );
-			$operator = $this->_setOperator( $operator );
-
 			$expression = $this->createExpression( $where, $operator, $value );
+
+			if( !isset( $this->wheres[ '$not' ] ) )
+			{
+				$this->wheres[ '$not' ] = array();
+			}
 
 			array_push( $this->wheres[ '$not' ], $expression );
 		}
