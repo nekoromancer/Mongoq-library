@@ -1,6 +1,6 @@
 <?php
 /*
- * MongoDB Quick Query Library - Mongoq ver 0.42
+ * MongoDB Quick Query Library - Mongoq ver 0.43
  * www.nekoromancer.kr
  *
  * Author : Nekoromancer
@@ -8,7 +8,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-04-23
+ * Date: 2014-04-24
  */
 
 defined('BASEPATH') OR exit('No direct script access allowed');
@@ -580,7 +580,10 @@ class Mongoq{
 			if( !is_array( $args[0] ) )
 			{
 				$key = array_shift( $args );
-				$value = array_shift( $value );
+				$value = array_shift( $args );
+				
+				if( $opt === '$inc' ) $value = (int)$value;
+
 				$this->updates[ $opt ][ $key ] = $value;	
 			}
 			else
@@ -588,6 +591,7 @@ class Mongoq{
 				$values = &$args[0];
 				foreach( $values as $key => $value )
 				{
+					if( $opt === '$inc' ) $value = (int)$value;
 					$this->updates[ $opt ][ $key ] = $value;
 				}
 			}
@@ -652,6 +656,7 @@ class Mongoq{
 		return ( $this );
 	}
 
+/*
 	public function max()
 	{
 		$args = func_get_args();
@@ -696,6 +701,7 @@ class Mongoq{
 		}
 		return ( $this );
 	}
+*/
 
 	public function rename()
 	{
@@ -718,34 +724,18 @@ class Mongoq{
 		return( $this );
 	}
 
-	public function now()
+	public function now( $field = null )
 	{
-		$args = func_get_args();
-
-		if( is_array( $args[0] ) )
+		if( !$field )
 		{
-			$dates = array_shift( $args );
-			$this->updates['$currentDate'] = array();
-			array_push( $this->updates['$currentDate'], $dates );
+			return( $this );
 		}
 		else
 		{
-			$field = array_shift( $args );
-			$value = array_shift( $args );
-			if( !$value )
-			{
-				$value = true;
-			}
-			else if( strtolower( $value ) === 'ts' || strtolower( $value ) === 'timestamp' )
-			{
-				$value = array( '$type' => 'timestamp' );
-			}
-
-			$this->updates['$currentDate'] = array();
-			array_push( $this->updates['$currentDate'], $value );
+			$args = array( $field, new MongoDate() );
+			$this->setUpdateOptions( '$set', $args );
 		}
-
-		return( $this );
+		return ( $this );
 	}
 
 	public function update( $upsert = false, $multi = false )
@@ -770,15 +760,14 @@ class Mongoq{
 			{
 				$upsert = true;
 			}
-
-			$this->options['upsert'] = $upsert;
-			$this->options['multiple'] = $multi;
-
+			
 			try 
 			{
 				$this->db->{$collection}->update( $query, 
 																				  $this->updates, 
-																				  $this->woptions );
+																				  array( 'upsert' => $upsert,
+																				  			 'multiple	' => $multi,
+																				  			 'writeConcern' => $this->woptions ) );
 
 				$this->_clear();
 			} 
@@ -1115,22 +1104,6 @@ class Mongoq{
 		}
 		
 		return ( $this );
-	}
-
-	public function id( $mongoId = null )
-	{
-		$_id = '';
-
-		try 
-		{
-			$_id = new MongoId( $mongoId );
-		} 
-		catch( MongoException $e ) 
-		{
-			show_error( 'Error. Invalid Mongo ID / '.$e->getMessage(), 500 );
-		}
-
-		return $_id;
 	}
 
 	/*
