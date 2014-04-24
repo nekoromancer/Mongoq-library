@@ -316,3 +316,24 @@ $this->mongoq->save($data);
 ```
 
 만일 동일 id의 Document가 있다면 지금 입력한 내용으로 교체될 것입니다.  id가 없다면 현재 입력된 id로 새로운 Document가 생성됩니다.  참고로 id 중복시 Document 전체가 교환된는 현상은 update시 set을 지정하지 않았을 때도 동일하게 발생합니다.
+
+## j. update()
+### 1) set()
+### 2) unsetField()
+### 3) inc()
+### 4) setOnInsert()
+### 5) now()
+### 6) rename()
+
+## k. remove()
+## l. count()
+## m. createCollection()
+## n. dropCollection()
+## o. dropCurrentDatabase()
+## p. switchDB()
+## q. ensureIndex()
+## r. group()
+## s. aggregation - 집계연산
+### 1) addAggregationOpt()
+### 2) getAggregation()
+## t. setWoptions()
