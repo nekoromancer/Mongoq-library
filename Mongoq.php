@@ -1,6 +1,6 @@
 <?php
 /*
- * MongoDB Quick Query Library - Mongoq ver 0.43
+ * MongoDB Quick Query Library - Mongoq ver 0.44
  * www.nekoromancer.kr
  *
  * Author : Nekoromancer
@@ -8,7 +8,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-04-24
+ * Date: 2014-04-25
  */
 
 defined('BASEPATH') OR exit('No direct script access allowed');
@@ -91,14 +91,9 @@ class Mongoq{
 	 * db.createCollection();
 	 */
 
-	public function createCollection( $options = null )
+	public function createCollection( $name = null, $options = array() )
 	{
-		if( isset( $options['name'] ) )
-		{
-			$name = $options['name'];
-			unset( $options['name'] );
-		}
-		else
+		if( !$name )
 		{
 			show_error( "createCollection() : collection name is must be required", 500 );
 		}
@@ -882,7 +877,7 @@ class Mongoq{
 	 * add pipeline options.
 	 */
 
-	public function aggregateAddopt( $pipeline = null, $option = null )
+	public function addAggregationOpt( $pipeline = null, $option = null )
 	{
 		if( !$pipeline )
 		{
