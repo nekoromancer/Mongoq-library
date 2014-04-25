@@ -315,17 +315,115 @@ $this->mongoq->collection('collection');
 $this->mongoq->save($data);
 ```
 
-만일 동일 id의 Document가 있다면 지금 입력한 내용으로 교체될 것입니다.  id가 없다면 현재 입력된 id로 새로운 Document가 생성됩니다.  참고로 id 중복시 Document 전체가 교환된는 현상은 update시 set을 지정하지 않았을 때도 동일하게 발생합니다.
+만일 동일 id의 Document가 있다면 지금 입력한 내용으로 교체될 것입니다.  id가 없다면 현재 입력된 id로 새로운 Document가 생성됩니다.  참고로 id 중복시 Document 전체가 교체되는 현상은 update시 set을 지정하지 않았을 때도 동일하게 발생합니다.
 
 ## j. update()
+조건에 맞는 Document를 수정합니다. 조건은 where() 등을 이용해 부여합니다.  update()에는 두가지 매개변수를 옵션으로 부여할 수 있습니다.  
+
+첫번째 옵션은 upsert입니다.  이 옵션이 true일 경우 where() 등을 이용해 부여한 조건에 일치하는 Document가 없다면 Insert를 수행하게 됩니다.  기본값은 false 입니다.
+
+```php
+$this->mongoq->update( true ); // upsert 옵션이 true로 지정됩니다.
+```
+
+두번째 옵션은 multiple입니다.  이 옵션이 true일 경우 조건에 일치하는 모든 Document를 변경할 것입니다.  false일 경우 조건에 일치하는 최초의 Document 한개만 수정할 것입니다.  기본값은 false입니다.  
+
+```php
+$this->mongoq->update( false, true ); // upsert 옵션은 false, multiple 옵션은 true 입니다.
+```
+
+update()는 수정할 사항을 아래의 함수등을 이용해 먼저 지정해 주어야 합니다.
+
+
 ### 1) set()
+지정된 필드의 값을 변경합니다.
+
+```php
+$this->mongoq->collection('collection');
+$this->mongoq->where('name', '=', 'neko'); // update를 실행할 조건은 name = neko 입니다.
+$this->mongoq->set( 'name', 'inu' ); // name 필드의 값을 inu로 변경합니다.
+$this->mongoq->update();
+```
+
+여러 값을 지정할 경우 배열을 사용할 수 있습니다.
+```php
+$set = array( 'name' => 'inu', 'age' => '30' );
+$this->mongoq->set( $set );
+```
+
 ### 2) unsetField()
+해당 필드를 삭제합니다.
+
+```php
+$this->mongoq->unsetField('gender');
+```
+
 ### 3) inc()
+해당 필드를 지정한 숫자만큼 증가시킵니다.
+
+```php
+$this->mongoq->inc( 'item', 10 );
+```
+
 ### 4) setOnInsert()
+해당하는 필드가 존재하지 않을 때만 그 Document에 지정한 값을 입력합니다.  이 함수를 사용할 경우 upsert 옵션이 자동으로 true로 지정됩니다.
+
+```
+{
+  _id : 100,
+  product : 'doll',
+  price : 30
+}
+```
+위와 같은 document가 있다고 가정했을 때, 다음을 수행한 경우
+
+```php
+$this->mongoq->setOnInsert( 'qty', 100 );
+$this->mongoq->update();
+```
+Document에 qty 라는 필드가 없으므로 Document에는 qty : 100 이라는 값이 추가 될 것입니다.
+
+```
+{
+  _id : 100,
+  product : 'doll',
+  price : 30,
+  qty : 100
+}
+```
+이렇게 수정된 상태에서 setOnInsert를 이용해 다시 한번 다음과 같은 작업을 수행할 경우
+
+```php
+$this->mongoq->setOnInsert( 'qty', 200 );
+$this->mongoq->update();
+```
+이미 Document에 qty라는 필드가 존재하므로 이 update 작업은 수행되지 않습니다.
+
 ### 5) now()
+지정한 필드에 현재 시간을 입력합니다.
+
+```php
+$this->mongoq->now( 'mod_time' ); // mod_time 이라는 필드에 MongoDate 형식으로 현재 날짜와 시간이 입력됩니다.
+$this->mongoq->update();
+```
+
 ### 6) rename()
+필드의 이름을 변경합니다.  현재 이름, 바꿀 이름 순으로 매개변수를 부여합니다.
+
+```php
+$this->mongoq->rename( 'nmae', 'name' ); // nmae라는 필드명을 name로 변경합니다.
+$this->mongoq->update();
+```
 
 ## k. remove()
+조건에 맞는 document를 삭제합니다. remove() 함수는 기본적으로 조건에 부합하는 Document 1개를 삭제합니다. 만일 조건에 맞는 모든 Document를 삭제하길 원한다면 옵션으로 false를 줍니다.
+
+```php
+$this->mongoq->collection('collection');
+$this->mongoq->where('age', '<', 18);
+$this->mongoq->remove(false); // age필드가 18 미만인 Document 전체를 삭제합니다.
+```
+
 ## l. count()
 ## m. createCollection()
 ## n. dropCollection()
