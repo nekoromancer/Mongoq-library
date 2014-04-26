@@ -425,13 +425,61 @@ $this->mongoq->remove(false); // age필드가 18 미만인 Document 전체를 �
 ```
 
 ## l. count()
+count()의 사용법은 find() 혹은 get()과 거의 동일합니다.  find() 나 get()이 collection에서 조건에 맞는 Document를 인출하는 함수라면 count()는 collection에서 조건에 맞는 Document의 '수'를 반환합니다.
+
+```php
+$where = array( array( 'age', '<', 18 ),
+                array( 'gender', '=', 'Female') );
+
+$this->mongoq->collection('collection');
+$this->mongoq->where( $where );
+
+$result = $this->mongoq->count();
+```
+
+이렇게 콜랙션에서 age가 18세 미만이고 성별이 여성인 Document의 숫자를 파악할 수 있습니다.
+
 ## m. createCollection()
 ## n. dropCollection()
+콜랙션을 삭제합니다.
+
+```php
+$this->mongoq->dropCollection( '콜렉션 이름' ); 
+```
+
+이 작업은 돌이킬 수 없습니다! 신중하게 결정하세요!
+
 ## o. dropCurrentDatabase()
+현재 지정된 데이터 베이스를 삭제합니다.
+
+```php
+$this->mongoq->dropCurrentDatabase();
+```
+
+떠나간 데이터베이스는 돌아오지 않습니다.
+
 ## p. switchDB()
+config/mongo.php 에서 설정한 기본 DB 외의 다른 DB에 접근하고자 할 때 사용합니다.
+```php
+$this->mongoq->switchDB( 'dog' ); // 지금부터는 dog 라는 이름의 데이터 베이스를 사용합니다.
+```
+
 ## q. ensureIndex()
+사용자가 임의로 Index값을 지정합니다.  serial_no 라는 필드가 있고 이 필드를 인덱스값으로 지정한다고 하면
+
+```php
+$this->mongoq->ensureIndex( array( 'serial_no' => 'asc' ), false );
+```
+
+첫번째 serial_no => asc 는 이 인덱스를 오름차순으로 생성한다는 의미입니다.
+두번째 bool 값은 이 인덱스가 유일값을 갖는 인덱스인지 아닌지를 정하는 것으라 기본값은 false 입니다.
+적절한 인덱스 설정은 데이터 베이스의 검색 속도를 비약적으로 상승시키지만 데이터 베이스 자체의 용량을 크게 만드는 요인이 되기 때문에 DB 설계시에 주의가 필요합니다. 
+
 ## r. group()
 ## s. aggregation - 집계연산
 ### 1) addAggregationOpt()
 ### 2) getAggregation()
 ## t. setWoptions()
+woptions 는 MongoDB에서 가장 변화무쌍한 옵션입니다.  버전이 하나 바뀔때마다 옵션이 사라지기도하고 새로운 옵션이 생기기도 하기 때문에 옵션에 대한 정확한 명세를 확인하기 위해서는 http://mongodb.org 에서 레퍼런스를 항상 확인 하는 것이 좋습니다.
+
+이 옵션의 역할은 insert(), remove(), update() 등의 연산을 할 때 동기적으로 처리할 것인가 비동기적으로 처리할 것인가, 데이터의 입출력이 성공했는지 실패했는지 감시 할 것인가, timeout은 얼마나 할 것인가 등에 대한 처리가 이루어 집니다.
