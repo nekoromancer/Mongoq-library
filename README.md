@@ -415,6 +415,11 @@ $this->mongoq->rename( 'nmae', 'name' ); // nmae라는 필드명을 name로 변�
 $this->mongoq->update();
 ```
 
+### 7) 배열 다루기
+Mongo DB에서는 Document가 배열을 갖을 수 있습니다.  MongoQ에서는 배열을 수정하기 위한 몇가지 메소드를 제공합니다.
+
+#### 7-1) push()
+
 ## k. remove()
 조건에 맞는 document를 삭제합니다. remove() 함수는 기본적으로 조건에 부합하는 Document 1개를 삭제합니다. 만일 조건에 맞는 모든 Document를 삭제하길 원한다면 옵션으로 false를 줍니다.
 
