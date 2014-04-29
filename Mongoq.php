@@ -319,15 +319,15 @@ class Mongoq{
 	 * if $except(default false) is true, returns all fields except $projection
 	 */
 
-	public function select( $projection = array(), $except = false )
+	public function select( $projection = array(), $isSelect = true )
 	{
-		if( $except )
+		if( $isSelect )
 		{
-			$value = 0;
+			$value = 1;
 		}
 		else
 		{
-			$value = 1;
+			$value = 0;
 		}
 
 		foreach( $projection as $item )
@@ -808,6 +808,7 @@ class Mongoq{
 	public function group( $options = array() )
 	{
 		$cond = &$this->wheres;
+		$this->isCollection('group()');
 		$collection = &$this->collection;
 
 		if( isset($options['keyf']) )
