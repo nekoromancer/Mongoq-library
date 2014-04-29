@@ -1,6 +1,6 @@
 <?php
 /*
- * MongoDB Quick Query Library - Mongoq ver 0.44
+ * MongoDB Quick Query Library - Mongoq ver 0.5
  * www.nekoromancer.kr
  *
  * Author : Nekoromancer
@@ -8,7 +8,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-04-25
+ * Date: 2014-04-30
  */
 
 defined('BASEPATH') OR exit('No direct script access allowed');
@@ -563,13 +563,32 @@ class Mongoq{
 			$this->update[$opt] = array();
 		}
 		
-		if( $opt == '$unset')
+		if( $opt === '$unset')
 		{
 			foreach( $values as $each_item )
 			{
 				$this->updates[ $opt ][ $each_item ] = '';
 			}
 		}
+		else if( ( $opt === '$push' || $opt === '$addToSet' ) 
+						 && is_array( $args[1] ) )
+		{
+			$field = array_shift( $args );
+			$values = array_shift( $args );
+			$this->updates[$opt][$field]['$each'] = $values;
+
+			if( !empty( $args ) )
+			{
+				$slice = array_shift( $args );
+				$this->updates[$opt][$field]['$slice'] = $slice;
+			}
+		}
+		else if( $opt === '$pull' && is_array( $args[1] ) )
+		{
+			$field = array_shift( $args );
+			$values = array_shift( $args );
+			$this->updates['$pullAll'][$field] = $values;
+		}		
 		else
 		{
 			if( !is_array( $args[0] ) )
@@ -579,7 +598,7 @@ class Mongoq{
 				
 				if( $opt === '$inc' ) $value = (int)$value;
 
-				$this->updates[ $opt ][ $key ] = $value;	
+				$this->updates[ $opt ][ $key ] = $value;
 			}
 			else
 			{
@@ -731,6 +750,66 @@ class Mongoq{
 			$this->setUpdateOptions( '$set', $args );
 		}
 		return ( $this );
+	}
+
+	public function push()
+	{
+		$args = func_get_args();
+
+		if( empty( $args ) )
+		{
+			return( $this );
+		}
+		else
+		{
+			$this->setUpdateOptions( '$push', $args );
+		}
+
+		return( $this );
+	}
+
+	public function pull()
+	{
+		$args = func_get_args();
+
+		if( empty( $args ) )
+		{
+			return( $this );
+		}
+		else
+		{
+			$this->setUpdateOptions( '$pull', $args );
+		}
+
+		return( $this );
+	}
+
+	public function pop( $field = null, $value = 1 )
+	{
+		if( !$field || ( $value !== 1 && $value !== -1 ) )
+		{
+			return( $this );
+		}
+		else
+		{
+			$args = array( $field, $value );
+			$this->setUpdateOptions( '$pop', $args );
+		}
+		return ( $this );
+	}
+
+	public function addToSet()
+	{
+		$args = func_get_args();
+
+		if( empty( $args ) )
+		{
+			return( $this );
+		}
+		else
+		{
+			$this->setUpdateOptions( '$addToSet', $args );
+		}
 	}
 
 	public function update( $upsert = false, $multi = false )
