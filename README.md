@@ -416,9 +416,161 @@ $this->mongoq->update();
 ```
 
 ### 7) 배열 다루기
-Mongo DB에서는 Document가 배열을 갖을 수 있습니다.  MongoQ에서는 배열을 수정하기 위한 몇가지 메소드를 제공합니다.
+Mongo DB에서는 Document가 배열을 갖을 수 있습니다.  MongoQ에서는 배열을 수정하기 위한 몇가지 메소드를 제공합니다. PHP나 Javascript 등 다른 언어에서 배열을 다룬적이 있다면 쉽게 접근하실 수 있습니다.
 
 #### 7-1) push()
+지정한 필드에 배열을 값을 추가합니다.  예를 들어 다음과 같은 Document가 있다고 가정하고
+```
+{
+  tags : [ 'neko', 'inu' ]
+}
+```
+
+여기에 'kitune' 라는 항목을 추가 한다면
+
+```php
+$this->mongoq->push( 'tags', 'kitune' );
+$this->mongoq->update();
+```
+
+결과는 다음과 같습니다.
+
+```
+{
+  tags : [ 'neko', 'inu', 'kitune' ]
+}
+```
+
+push()의 두번째 매개변수가 배열인 경우 모든 항목을 추가합니다.  위 Documnet를 그대로 사용합니다.
+
+```php
+$this->mongoq->push( 'tags', array( 'tanuki', 'oukami', 'tora' ) );
+$this->mongoq->update();
+```
+
+결과는 다음과 같습니다.
+
+```
+{
+  tags : [ 'neko', 'inu', 'kitune', 'tanuki', 'oukami', 'tora' ]
+}
+```
+
+push()의 세번째 매개변수는 $slice라는 조금은 생소한 녀석으로 0 또는 음의 정수만을 갖을 수 있습니다(Mongo DB 2.6 이상에서는 양의 정수로 받을 수 있게 변경되었지만 아직 PHP에는 반영되지 않았습니다).  
+
+$slice는 일단 두번째 매개변수에서 받은 배열($slice 사용시 두번째 매개변수는 반드시 배열이어야 합니다)을 필드에 추가한 다음 그 필드의 배열 항목을 $slice 값만큼의 뒷 부분만 남겨놓고 앞 부분은 '잘라서' 버립니다.
+
+현재 6개 항목이 있는 tags 필드에 2개의 값을 더 추가하고 $slice 값은 -5를 주겠습니다.
+
+```php
+$this->mongoq->push( 'tags', array( 'sisi', 'mogura' ), -5 );
+$this->mongoq->update();
+```
+
+```
+{
+  tags : [ 'tanuki', 'oukami', 'tora', 'sisi', 'mogura' ]
+}
+```
+배열에 두개 항목이 추가된 후 뒤의 다섯 항목만 남고 앞부분은 잘려나갔습니다.
+
+만일 두번째 매개변수에 빈 배열을 넣고, 세번째 매개변수인 $slice에 0을 넣게 되면 배열은 텅 비게 됩니다.
+
+```php
+$this->mongoq->push( 'tags', array(), 0 );
+$this->mongoq->update();
+```
+```
+{
+  tags : []
+}
+```
+
+#### 7-2) pull()
+pull은 배열은 삭제하는 방법 중 하나입니다.  첫번째 매개변수는 필드명, 두번째 매개변수는 삭제할 값입니다.  아까의 Document를 다시 가져와 보겠습니다.
+
+```
+{
+  tags : [ 'tanuki', 'oukami', 'tora', 'sisi', 'mogura' ]
+}
+```
+
+여기서 'tanuki' 값을 빼고 싶습니다.
+
+```php
+$this->mongoq->pull( 'tags', 'tanuki' );
+$this->mongoq->update();
+```
+```
+{
+  tags : [ 'oukami', 'tora', 'sisi', 'mogura' ]
+}
+```
+
+두번째 매개변수에 배열을 주어보도록 하겠습니다.
+
+```php
+$this->mongoq->pull( 'tags', array( 'tora', 'sisi' ) );
+$this->mongoq->update();
+```
+```
+{
+  tags : [ 'oukami', 'mogura' ]
+}
+```
+
+배열과 일치하는 항목이 삭제되었습니다.
+
+#### 7-3) addToSet()
+addToSet()은 push와 유사한 기능을 합니다.  다만 addToSet() 동일한 값이 있으면 배열에 그 값은 기록하지 않고 새로운 값만 집어 넣습니다.
+
+```
+{
+  tags : [ 1, 2, 3, 4 ,5 ]
+}
+```
+```php
+$this->mongoq->addToSet( 'tags', array( 3, 5, 6, 7 ) );
+$this->mongoq->update();
+```
+
+결과는 중복 값인 3과 5를 제외한 6과 7이 추가됩니다.
+```
+{
+  tags : [ 1, 2, 3, 4 ,5, 6, 7 ]
+}
+```
+#### 7-4) pop()
+보통 배열을 다른 언어에서와의 pop()이 하는 역할과 마찬가지로 배열의 마지막 값을 삭제합니다.
+
+```
+{
+  tags : [ 1, 2, 3, 4 ,5, 6, 7 ]
+}
+```
+```php
+$this->mongoq->pop( 'tags' );
+$this->mongoq->update();
+```
+이 코드의 결과로 7이 삭제 됩니다. 
+
+```
+{
+  tags : [ 1, 2, 3, 4 ,5, 6 ]
+}
+```
+
+pop의 두번째 매개변수에 -1를 주게 되면 이번에는 배열의 가장 앞의 값을 삭제합니다. 본래 shift가 하던 일이지만요.
+
+```php
+$this->mongoq->pop( 'tags', -1 );
+$this->mongoq->update();
+```
+```
+{
+  tags : [ 2, 3, 4 ,5, 6 ]
+}
+```
 
 ## k. remove()
 조건에 맞는 document를 삭제합니다. remove() 함수는 기본적으로 조건에 부합하는 Document 1개를 삭제합니다. 만일 조건에 맞는 모든 Document를 삭제하길 원한다면 옵션으로 false를 줍니다.
