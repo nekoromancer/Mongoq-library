@@ -597,6 +597,38 @@ $result = $this->mongoq->count();
 이렇게 콜랙션에서 age가 18세 미만이고 성별이 여성인 Document의 숫자를 파악할 수 있습니다.
 
 ## m. createCollection()
+콜랙션을 생성합니다.  Mongo DB에서는 기본적으로 사용할 Collection을 선언하는 것 만으로도 자동적으로 Collection이 생성되므로 일반적인 경우에서는 명시적으로 Collection을 생성하여 사용하지 않습니다.
+
+다만, 특별한 옵션을 가진 Collection을 생성해야 할 필요가 있다면 createCollection()을 이용하여 Collection을 생성할 필요가 있습니다.
+
+기본적인 사용법의 예시는 다음과 같습니다.
+
+```php
+$options = array( 
+                  'capped' => true,
+                  'max' => 65536
+                  );
+
+$this->mongoq->createCollection('collectionName', $options);
+```
+
+createCollection()의 첫번째 매개변수는 생성한 Collection의 이름입니다.
+두번째 매개변수는 Option으로 반드시 배열로 받습니다.  배열의 형태는 '옵션명' => 옵션값 의 형태입니다.
+
+사용가능한 옵션은 다음과 같습니다.
+
+```
+capped : ( true/false ) - Capped가 true로 설정된 Collection은 반드시 size나 max 옵션이 함께 부여되어야 합니다.  Capped collection은 document의 용량 혹은 수가 지정한 size나 max 값을 넘어가게 되면 과거 Document부터 순차적으로 삭제하는 Collection 입니다.
+```
+```
+autoIndexId : ( true/false ) - true인 경우 _id 필드에 해싱된 인덱스 값이 자동으로 생성됩니다.  일반 Collection에서는 기본적으로 true이며, Mongo DB 2.2 이상에서는 Capped Collection의 경우에도 기본값이 true 입니다.
+```
+```
+size : (숫자) - Capped Collection에서 Collection의 최대 사이즈를 지정합니다(Byte). 지정된 Size를 초과할 경우 과거 Document부터 자동으로 삭제될 것입니다.  Capped Collection이 아닌 경우 Size를 지정하게 되면 명시된 용량만큼의 DB 공간을 미리 확보해 둡니다.
+```
+```
+max : (숫자) - Capped Collection에서 Collection에 담을 수 있는 최대 Document 수를 지정합니다. 지정된 수를 초과할 경우 과거 Document부터 자동으로 삭제될 것입니다.
+```
 ## n. dropCollection()
 콜랙션을 삭제합니다.
 
