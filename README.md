@@ -620,27 +620,28 @@ createCollection()의 첫번째 매개변수는 생성한 Collection의 이름�
 ```
 capped : ( true/false ) 
 
-Capped가 true로 설정된 Collection은 반드시 size나 max 옵션이 함께 부여되어야 합니다.  
-Capped collection은 document의 용량 혹은 수가 지정한 size나 max 값을 넘어가게 되면 과거 Document부터 
-순차적으로 삭제하는 Collection 입니다.
+Capped가 true로 설정된 Collection은 반드시 size나 max 옵션이 함께 부여되어야 합니다.  Capped collection은 
+document의 용량 혹은 수가 지정한 size나 max 값을 넘어가게 되면 과거 Document부터 순차적으로 삭제하는 
+Collection 입니다.
 ```
 ```
 autoIndexId : ( true/false ) 
 
-true인 경우 _id 필드에 해싱된 인덱스 값이 자동으로 생성됩니다.  일반 Collection에서는 기본적으로 true
-이며, Mongo DB 2.2 이상에서는 Capped Collection의 경우에도 기본값이 true 입니다.
+true인 경우 _id 필드에 해싱된 인덱스 값이 자동으로 생성됩니다.  일반 Collection에서는 기본적으로 true이며, 
+Mongo DB 2.2 이상에서는 Capped Collection의 경우에도 기본값이 true 입니다.
 ```
 ```
 size : (숫자) 
 
-Capped Collection에서 Collection의 최대 사이즈를 지정합니다(Byte). 지정된 Size를 초과할 경우 과거 
-Document부터 자동으로 삭제될 것입니다.  Capped Collection 이 아닌 경우 Size를 지정하게 되면 명시된 
-용량만큼의 DB 공간을 미리 확보해 둡니다.
+Capped Collection에서 Collection의 최대 사이즈를 지정합니다(Byte). 지정된 Size를 초과할 경우 과거 Document부터 
+자동으로 삭제될 것입니다.  Capped Collection 이 아닌 경우 Size를 지정하게 되면 명시된 용량만큼의 DB 공간을 미리 
+확보해 둡니다.
 ```
 ```
 max : (숫자) 
-Capped Collection에서 Collection에 담을 수 있는 최대 Document 수를 지정합니다. 지정된 수를 초과할 
-경우 과거 Document부터 자동으로 삭제될 것입니다.
+
+Capped Collection에서 Collection에 담을 수 있는 최대 Document 수를 지정합니다. 지정된 수를 초과할 경우 과거 
+Document부터 자동으로 삭제될 것입니다.
 ```
 ## n. dropCollection()
 콜랙션을 삭제합니다.
