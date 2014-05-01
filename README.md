@@ -801,7 +801,7 @@ $options['keyf'] = 'function( doc ) {
 $options['reduce'] = 'function( curr, result ) {
     result.total++;
     result.koreanTotal += curr.result.korean;
-};
+}';
 
 
 $options['initial'] = array( 'total' => 0, 'koreanTotal' => 0 );
