@@ -691,6 +691,144 @@ group()의 메서드는 배열 형태의 매개변수를 갖습니다.  이 배�
 - finalize(옵션)
 - cond(옵션)
 
+keyf는 그룹핑할 필드를 지정합니다.  가장 간단한 방법은 MongoQ의 메서드인 select() 함수를 이용하는 것입니다.  좀더 복잡한 방법으로는 Javascript 함수를 이용할 수도 있습니다.
+
+reduce는 그룹핑한 필드의 값을 계산하고 새로운 값을 도출하는 영역입니다.  Javascript작성됩니다.
+
+initial 옵션은 기존의 필드 이외에 reduce에서 새롭게 도출한 필드의 값을 초기화 합니다.
+
+cond는 그룹핑할 Document의 조건을 할당하는 옵션으로 MongoQ의 where() 등의 메서드를 통해 지정합니다.
+
+finalize는 Group 연산을 통해 나온 최종결과 값을 정리하는 부분입니다.
+
+그럼 Student Info Collection에 다음과 같은 Document 세트가 있다고 가정하고 group() 연산을 수행해 보겠습니다.
+```
+{
+  name : <이름>,
+  age : <나이>,
+  gender : <성별>,
+  country : <국적>,
+  result : { korean : <국어성적>
+             math : <수학성적> },
+  birthDay : <생일> - ISODate()
+}
+```
+국적별로 성별이 여성인 학생의 수를 집계해 보겠습니다.
+
+```php
+$this->load->library('mongoq');
+$this->mongoq->collection('stuInfo');
+
+$this->mongoq->select( 'country' );
+  //그룹핑할 필드는 country입니다.
+
+$this->mongoq->where( 'gender', '=', 'female' );
+  // 그룹핑할 조건은 gender가 female인 학생입니다.
+
+$options = array();
+$options['reduce'] = 'function( curr, result ) { 
+  // curr은 개별 document의 필드값을 받아올 수 있으며,
+  // result는 새로운 필드값을 만들고 계산 결과를 집계할 수 있습니다.
+   
+   result.total += 1;
+   // 여기서는 기존의 document값은 가져오기 말고 total 값을 1씩 증가시킵니다.
+}';
+
+$options['initial'] = array( 'total' => 0 );
+  // reduce 옵션에서 지정한 total의 초기값은 0입니다.
+
+$result = $this->mongoq->group( $options );
+// 옵션을 group()에 넣고 함수를 돌립니다.
+```
+
+위의 코드는 다음과 같은 결과를 도출할 것입니다.
+
+```
+{
+  country : <국적>
+  total : <숫자>
+}
+이하 생략...
+```
+
+결과는 국적별로 성별이 여성인 학생들의 숫자가 도큐먼트의 형태로 반환될 것입니다.  도큐먼트의 숫자는 Collection에 존재하는 국가의 수 만큼 나올 것입니다.  이번에는 좀더 복잡한 계산을 해보겠습니다.  17세 이상의 남학생의 국어와 수학성적을 국적별로 그룹핑해 보겠습니다.
+
+```php
+$this->load->library('mongoq');
+$this->mongoq->collection('stuInfo');
+
+$this->mongoq->select( 'country' );
+$this->mongoq->where('gender', '=', 'male');
+$this->mongoq->where('age', '>=', 17);
+
+$options = array();
+$options['reduce'] = 'function( curr, result ) {
+    result.koreanTotal += curr.result.korean;
+    result.mathTotal += curr.result.math;
+}'
+
+$options['initial'] = array( 'koreanTotal' => 0, 'mathTotal' => 0 );
+$result = $this->mongoq->group( $options );
+```
+
+결과는 대략 ...
+
+```
+{
+  country : <국적>
+  koreanTotal : <국어 점수의 합>
+  mathTotal : <수학 점수의 합>
+}
+```
+
+마지막으로 모든 옵션을 전부 사용한 연산 예제로 마무리 해 보겠습니다.
+
+조건은 다음과 같습니다.
+
+- 생일의 요일을 기준으로 그룹핑을 실행합니다.
+- 조건은 17세 미만인 학생으로
+- 생일 요일별 학생의 수, 국어 점수의 합과 이것을 요일별 학생수로 나눈 평균을 구해보겠습니다.
+
+```php
+$this->load->library('mongoq');
+$this->mongoq->collection('stuInfo');
+$this->mongoq->where( 'age', '<', 17 );
+
+$options['keyf'] = 'function( doc ) {
+    return { dayOfWeek : doc.birthDay.getDay(); }
+}';
+
+$options['reduce'] = 'function( curr, result ) {
+    result.total++;
+    result.koreanTotal += curr.result.korean;
+};
+
+
+$options['initial'] = array( 'total' => 0, 'koreanTotal' => 0 );
+
+$options['finalize'] = 'function( result ) {
+    var weekDay = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    
+    result.dayOfWeek = weekDay[ result.dayOfWeek ];
+    result.average = Math.round( result.koreanTotal / result.total );
+}';
+
+$result = $this->mongoq->group( $options );
+```
+
+최초 keyf 옵션에서 Javascript 함수를 이용했습니다. document에서 birthDay 필드의 값을 가져와 getDay()라는 내장함수(날짜에서 요일을 구해 일요일은 0, 토요일은 6을 반환)에 돌린 반환값을 dayOfWeek 라는 필드의 값으로 합니다.  dayOfWeek 필드는 이번 그룹연산에서 그룹핑의 기준이 됩니다.
+
+reduce 옵션에서는 result.total++로 그룹의 인원수를 구하고, result.koreanTotal에서는 result.korean의 값을 더해 국어 성적을 합산합니다.  그리고 initial에서 total과 koreanTotal의 초기값은 0이라고 선언했습니다.
+
+마지막으로 연산의 최종결과를 finalize 옵션에서 가공합니다.  먼저 weekDay 라는 배열을 변수로 선언한 다음 dayOfWeek로 반환된 숫자값을 문자로 치환합니다.  그리고 average 라는 필드를 생성하고 거기에 koreanTotal을 total로 나눈 값에 반올림을 한 평균값을 입력합니다.
+
+```
+  { dayOfWeek : '월요일', total : 10, koreanTotal : 856, average : 86 }
+  (이하생략)
+```
+
+결과는 이와 같이 생성된 것입니다.
+
 ## s. aggregation - 집계연산
 ### 1) addAggregationOpt()
 ### 2) getAggregation()
