@@ -679,6 +679,18 @@ $this->mongoq->ensureIndex( array( 'serial_no' => 'asc' ), false );
 적절한 인덱스 설정은 데이터 베이스의 검색 속도를 비약적으로 상승시키지만 데이터 베이스 자체의 용량을 크게 만드는 요인이 되기 때문에 DB 설계시에 주의가 필요합니다. 
 
 ## r. group()
+group() 메서드는 MongoDB의 기초적인 집계 연산인 group 연산을 수행합니다.  SQL의 GROUP BY와 유사한 부분이 많지만 Javascript 코드 문법을 활용하여 좀더 정교하고 다양한 조작이 가능합니다.  
+
+MongoDB 콘솔에서는 initial 옵션을 생략하고 단순한 GROUP BY 연산을 실행하는 것이 가능합니다만, PHP에서는 initial 옵션의 생략을 허용하지 않기 때문에 반드시 하나 이상의 필드에 집계값을 도출해 내야 합니다.
+
+group()의 메서드는 배열 형태의 매개변수를 갖습니다.  이 배열에는 Key => Value 형태로 옵션을 부여하여 사용가능한 옵션은 다음과 같습니다.
+
+- keyf(필수) 
+- reduce(필수) 
+- initial(필수)
+- finalize(옵션)
+- cond(옵션)
+
 ## s. aggregation - 집계연산
 ### 1) addAggregationOpt()
 ### 2) getAggregation()
