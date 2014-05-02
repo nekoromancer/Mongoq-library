@@ -765,7 +765,7 @@ $options = array();
 $options['reduce'] = 'function( curr, result ) {
     result.koreanTotal += curr.result.korean;
     result.mathTotal += curr.result.math;
-}'
+}';
 
 $options['initial'] = array( 'koreanTotal' => 0, 'mathTotal' => 0 );
 $result = $this->mongoq->group( $options );
