@@ -795,7 +795,7 @@ $this->mongoq->collection('stuInfo');
 $this->mongoq->where( 'age', '<', 17 );
 
 $options['keyf'] = 'function( doc ) {
-    return { dayOfWeek : doc.birthDay.getDay(); }
+    return { dayOfWeek : doc.birthDay.getDay() };
 }';
 
 $options['reduce'] = 'function( curr, result ) {
