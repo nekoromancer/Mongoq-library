@@ -982,7 +982,7 @@ class Mongoq{
 			case '$group' :
 				if( !$option ) 
 				{
-					show_error( "aggregateAddopt() : $group pipeline must required second parameter", 500);
+					show_error( "aggregateAddopt() : group pipeline must be required second parameter", 500);
 				}
 
 				array_push( $this->aggregate_options, array( '$group' => $option ) );
@@ -1019,7 +1019,12 @@ class Mongoq{
 				break;
 
 			case '$unwind' :
+			  if( !$option ) 
+				{
+					show_error( "aggregateAddopt() : unwind pipeline must be required second parameter", 500);
+				}
 				array_push( $this->aggreate_options, array( '$unwind' => $option) );
+				break;
 
 			default :
 				break;			
