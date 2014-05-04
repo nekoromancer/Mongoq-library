@@ -830,7 +830,42 @@ reduce 옵션에서는 result.total++로 그룹의 인원수를 구하고, resul
 결과는 이와 같이 생성된 것입니다.
 
 ## s. aggregation - 집계연산
+Aggregation은 MongoDB에서 지원하는 집계연산의 한 방법입니다.  Aggregation은 '파이프라인' 이라는 옵션을 통해 연산을 수행합니다.  파이프라인은 공장의 생산라인이나 물이 흘러가는 배관을 연상하시면 쉽게 이해가 되실겁니다.  데이터를 파이프라인에 흘려 넣으면 '순서대로' 데이터를 거르고 가공해서 최공 결과물을 배출하게 됩니다.
+
+파이프라인은 addAggreagationOpt() 메서드를 통해 지정합니다.  앞서 말했듯 파이프라인 옵션은 '순차적으로' 처리되기 때문에 옵션을 지정하는 순서에 따라 결과값이 달라지거나 에러가 발생하기도 합니다.  다음 항목에서 파이프라인 옵션의 종류와 사용방법에 대해서 설명하겠습니다.
+
+(현재 MongoDB PHP 드라이버는 MongoDB 2.6에서 새롭게 추가된 내용을 반영하고 있지 않습니다.  따라서 MongoQ 역시 2.6버전에서 새롭게 추가된 파이프라인 옵션은 아직 사용하실 수 없습니다)
+
 ### 1) addAggregationOpt()
+파이프라인 옵션은 $ 를 포함한 문자열 입니다.  파이프라인은 addAgreegationOpt() 함수의 첫번째 매개변수로 지정합니다.
+
+```php
+$this->load->library('mongoq');
+$this->mongoq->collection('collectionName');
+
+$this->mongoq->addAggregationOpt('$match'); // $match 라는 파이프라인 옵션을 지정합니다.
+```
+옵션을 지정할 때 $는 생략할 수도 있습니다.  단, 코드의 가독성이나 일관성을 유지하기 위해 한가지 방법으로 통일하여 사용하실 것을 권장합니다.
+
+```php
+$this->addAggregationOpt('match'); // $는 생략가능합니다.
+```
+
+#### 1-1) $match
+지정한 조건에 맞는 데이터를 추려냅니다.  where() 등의 함수를 통해서 지정합니다.
+
+```php
+$where = array(
+           array( 'age', '>', 18 ),
+           array( 'gender', '=', 'other')
+         );
+
+$this->mongoq->orWhere( $where ); // orWhere()를 사용했습니다. $where 변수의 조건들이 or 로 묶입니다.
+$this->mongoq->addAggregationOpt( $match ) // orWhere()에서 지정한 조건을 그대로 읽어옵니다.
+```
+
+#### 1-2) $project
+
 ### 2) getAggregation()
 ## t. setWoptions()
 woptions 는 MongoDB에서 가장 변화무쌍한 옵션입니다.  버전이 하나 바뀔때마다 옵션이 사라지기도하고 새로운 옵션이 생기기도 하기 때문에 옵션에 대한 정확한 명세를 확인하기 위해서는 http://mongodb.org 에서 레퍼런스를 항상 확인 하는 것이 좋습니다.
