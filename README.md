@@ -861,12 +861,55 @@ $where = array(
          );
 
 $this->mongoq->orWhere( $where ); // orWhere()를 사용했습니다. $where 변수의 조건들이 or 로 묶입니다.
-$this->mongoq->addAggregationOpt( $match ) // orWhere()에서 지정한 조건을 그대로 읽어옵니다.
+$this->mongoq->addAggregationOpt( '$match' ) // orWhere()에서 지정한 조건을 그대로 읽어옵니다.
 ```
 
 #### 1-2) $project
+지정한 필드를 가져옵니다. select() 함수를 통해서 지정합니다.
+
+```php
+$select = array( 'name', 'gender' );
+
+$this->mongoq->select( $select );
+$this->mongoq->addAggregationOpt( '$project' ); // name과 gender 필드를 읽어옵니다.
+```
+
+#### 1-3) $sort
+데이터를 정렬합니다. sort() 함수를 통해서 지정합니다.
+
+```php
+$this->mongoq->sort( 'name', 'asc' ); // name 필드를 오름차순으로 정렬합니다.
+$this->mongoq->addAggregationOpt( '$sort' );
+```
+
+#### 1-4) $limit
+읽어올 데이터의 갯수를 제한합니다. limit와 동일한 기능입니다.
+
+```php
+$this->mongoq->addAggregationOpt( '$limit', 5 ); // 5개의 데이터를 가져옵니다.
+```
+
+#### 1-5) $skip
+읽어올 데이터를 앞에서부터 지정된 숫자만큼 제외하고 가져옵니다.  skip과 동일한 기능입니다.
+
+```php
+$this->mongoq->addAggregationOpt( '$skip', 10 ); // 최초 10개의 데이터는 제외하고 가져옵니다.
+```
+
+#### 1-6) $unwind
+
+#### 1-7) $group
+$addToSet
+$first
+$last
+$max
+$min
+$avg
+$push
+$sum
 
 ### 2) getAggregation()
+
 ## t. setWoptions()
 woptions 는 MongoDB에서 가장 변화무쌍한 옵션입니다.  버전이 하나 바뀔때마다 옵션이 사라지기도하고 새로운 옵션이 생기기도 하기 때문에 옵션에 대한 정확한 명세를 확인하기 위해서는 http://mongodb.org 에서 레퍼런스를 항상 확인 하는 것이 좋습니다.
 
