@@ -897,6 +897,46 @@ $this->mongoq->addAggregationOpt( '$skip', 10 ); // 최초 10개의 데이터는
 ```
 
 #### 1-6) $unwind
+unwind 파이프 라인은 배열을 값으로 갖는 필드를 지정합니다. unwind 파이프 라인을 거치면 해당 Document는 지정한 필드의 배열 요소별로 독립된 Document를 반환합니다.
+
+다음과 같은 Document가 있다고 가정합니다.
+
+```
+{
+  title : 'Nekomonogatari',
+  author : 'Nisio Isin',
+  tag : [ 'Light Novel', 'Fantasy', 'Romance' ]
+}
+
+```
+이 Document에서 unwind로 tag 필드를 지정하면,
+
+```php
+$this->mongoq->addAggregationOpt( '$unwind', 'tag' );
+```
+
+그 결과는 다음과 같이 됩니다.
+
+```
+{
+  title : 'Nekomonogatari',
+  author : 'Nisio Isin',
+  tag : 'Light Novel'
+}
+
+{
+  title : 'Nekomonogatari',
+  author : 'Nisio Isin',
+  tag : 'Fantasy'
+}
+
+{
+  title : 'Nekomonogatari',
+  author : 'Nisio Isin',
+  tag : 'Romance'
+}
+
+```
 
 #### 1-7) $group
 $addToSet
