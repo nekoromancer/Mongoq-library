@@ -992,7 +992,7 @@ woptions 는 MongoDB에서 가장 변화무쌍한 옵션입니다.  버전이 �
 ```php
 $wOpt = array(
            'w' => 1,
-           'wTimeoutMS => 10000
+           'wTimeoutMS' => 10000
              );
 
 $this->mongoq->setWoptions( $wOpt );
