@@ -848,7 +848,7 @@ $this->mongoq->addAggregationOpt('$match'); // $match 라는 파이프라인 옵
 옵션을 지정할 때 $는 생략할 수도 있습니다.  단, 코드의 가독성이나 일관성을 유지하기 위해 한가지 방법으로 통일하여 사용하실 것을 권장합니다.
 
 ```php
-$this->addAggregationOpt('match'); // $는 생략가능합니다.
+$this->mongoq->addAggregationOpt('match'); // $는 생략가능합니다.
 ```
 
 #### 1-1) $match
@@ -975,7 +975,6 @@ $this->mongoq->addAggregationOpt( '파이프 라인', '옵션' );
 
 /*
   Pipeline 옵션을 순서대로 정의합니다.
-
 */
 
 $result = $this->mongoq->getAggregation();
