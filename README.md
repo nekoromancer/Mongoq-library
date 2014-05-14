@@ -939,16 +939,48 @@ $this->mongoq->addAggregationOpt( '$unwind', 'tag' );
 ```
 
 #### 1-7) $group
-$addToSet
-$first
-$last
-$max
-$min
-$avg
-$push
-$sum
+Group 연산을 수행합니다.  group() 함수와 유사한 기능을 갖고 있습니만 group() 함수가 Javascript를 사용하여 연산을 제어하는 반면 $group 파이프 라인을 통한 집계연산은 PHP코드만으로 작성됩니다.
+
+$group 연산을 수행하기 위해서는 먼저 배열을 통해서 결과물의 형태의 정의해 주어야 합니다. group 연산의 기준이 되는 필드는 '_id'로 정의되며 _id 필드는 필수요소입니다.
+
+gruop 연산에서 어떠한 동작을 할지에 대해서는 별도의 연산자를 통해서 지정하며 다음 예제를 통해서 확인하실 수 있습니다.
+
+```php
+
+// group연산에 필요한 배열을 정의할 때 필드명 앞에 $가 붙습니다.
+
+$gruop = array(
+              '_id' => '$userName', // userName 필드를 기준으로 group연산을 수행합니다.
+              'tags' => array( '$addToSet' => '$tag' ), // tag필드의 각 요소를 중복 없이 종합하여 tags 필드에 배열로 반환합니다.
+              'allTags' => array( '$push' => '$tag ), // tag필드의 모든 요소를 종합하여 allTags 필드에 배열로 반환합니다.
+              'fistTag' => array( '$first' => '$tag' ), // tag 필드의 첫번째 값을 firstTag 필드에 반환합니다.
+              'lastTag' => array( '$last' => '$tag' ), // tag 필드의 마지막 값을 lastTag 필드에 반환합니다.
+              'maxPoint' => array( '$max' => '$point' ), // point 필드의 최대값을 maxPoint 필드에 반환합니다.
+              'minPoint' => array( '$min' => '$point' ), // point 필드의 최소값을 minPoint 필드에 반환합니다.
+              'sumPoint' => array( '$sum' => '$point' ), // point 필드의 합산값을 sumPoint 필드에 반환합니다.
+              'avgPoint' => array( '$avg' => '$point' ), // point 필드의 평균값을 avgPoint 필드에 반환합니다.
+              );
+              
+$this->mongoq->addAggregationOpt( '$group', $group );
+```
 
 ### 2) getAggregation()
+Aggregate 연산을 수행하여 최종 결과를 반환합니다.  연산 순서는 addAggregationOpt() 함수를 통해 지정된 순서대로 수행됩니다.
+
+```php
+$this->load->library( 'mongoq' );
+$this->mongoq->collection( 'collectionName' );
+
+$this->mongoq->addAggregationOpt( '파이프 라인', '옵션' );
+
+/*
+  Pipeline 옵션을 순서대로 정의합니다.
+
+*/
+
+$result = $this->mongoq->getAggregation();
+// 최종 결과가 $result에 반환됩니다.
+```
 
 ## t. setWoptions()
 woptions 는 MongoDB에서 가장 변화무쌍한 옵션입니다.  버전이 하나 바뀔때마다 옵션이 사라지기도하고 새로운 옵션이 생기기도 하기 때문에 옵션에 대한 정확한 명세를 확인하기 위해서는 http://mongodb.org 에서 레퍼런스를 항상 확인 하는 것이 좋습니다.
