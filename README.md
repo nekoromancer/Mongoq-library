@@ -950,15 +950,15 @@ gruop 연산에서 어떠한 동작을 할지에 대해서는 별도의 연산�
 // group연산에 필요한 배열을 정의할 때 필드명 앞에 $가 붙습니다.
 
 $gruop = array(
-              '_id' => '$userName', // userName 필드를 기준으로 group연산을 수행합니다.
-              'tags' => array( '$addToSet' => '$tag' ), // tag필드의 각 요소를 중복 없이 종합하여 tags 필드에 배열로 반환합니다.
-              'allTags' => array( '$push' => '$tag ), // tag필드의 모든 요소를 종합하여 allTags 필드에 배열로 반환합니다.
-              'fistTag' => array( '$first' => '$tag' ), // tag 필드의 첫번째 값을 firstTag 필드에 반환합니다.
-              'lastTag' => array( '$last' => '$tag' ), // tag 필드의 마지막 값을 lastTag 필드에 반환합니다.
-              'maxPoint' => array( '$max' => '$point' ), // point 필드의 최대값을 maxPoint 필드에 반환합니다.
-              'minPoint' => array( '$min' => '$point' ), // point 필드의 최소값을 minPoint 필드에 반환합니다.
-              'sumPoint' => array( '$sum' => '$point' ), // point 필드의 합산값을 sumPoint 필드에 반환합니다.
-              'avgPoint' => array( '$avg' => '$point' ), // point 필드의 평균값을 avgPoint 필드에 반환합니다.
+           '_id' => '$userName', // userName 필드를 기준으로 group연산을 수행합니다.
+           'tags' => array( '$addToSet' => '$tag' ), // tag필드의 각 요소를 중복 없이 종합하여 tags 필드에 배열로 반환합니다.
+           'allTags' => array( '$push' => '$tag' ), // tag필드의 모든 요소를 종합하여 allTags 필드에 배열로 반환합니다.
+           'fistTag' => array( '$first' => '$tag' ), // tag 필드의 첫번째 값을 firstTag 필드에 반환합니다.
+           'lastTag' => array( '$last' => '$tag' ), // tag 필드의 마지막 값을 lastTag 필드에 반환합니다.
+           'maxPoint' => array( '$max' => '$point' ), // point 필드의 최대값을 maxPoint 필드에 반환합니다.
+           'minPoint' => array( '$min' => '$point' ), // point 필드의 최소값을 minPoint 필드에 반환합니다.
+           'sumPoint' => array( '$sum' => '$point' ), // point 필드의 합산값을 sumPoint 필드에 반환합니다.
+           'avgPoint' => array( '$avg' => '$point' ), // point 필드의 평균값을 avgPoint 필드에 반환합니다.
               );
               
 $this->mongoq->addAggregationOpt( '$group', $group );
