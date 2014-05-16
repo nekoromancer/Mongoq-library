@@ -411,7 +411,7 @@ $this->mongoq->update();
 필드의 이름을 변경합니다.  현재 이름, 바꿀 이름 순으로 매개변수를 부여합니다.
 
 ```php
-$this->mongoq->rename( 'nmae', 'name' ); // nmae라는 필드명을 name로 변경합니다.
+$this->mongoq->rename( 'nmae', 'name' ); // 필드명nmae을 name로 변경합니다.
 $this->mongoq->update();
 ```
 
@@ -731,7 +731,7 @@ $options['reduce'] = 'function( curr, result ) {
   // result는 새로운 필드값을 만들고 계산 결과를 집계할 수 있습니다.
    
    result.total += 1;
-   // 여기서는 기존의 document값은 가져오기 말고 total 값을 1씩 증가시킵니다.
+   // 여기서는 기존의 document값은 그대로 두고 결과의 total 값을 1씩 증가시킵니다.
 }';
 
 $options['initial'] = array( 'total' => 0 );
@@ -996,4 +996,20 @@ $wOpt = array(
              );
 
 $this->mongoq->setWoptions( $wOpt );
+```
+## u. sortResultArray()
+group()과 aggregation 연산의 $group 파이프라인을 통해 산출된 결과물은 아쉽게도 정렬(Sorting)되지 않습니다.  sortResultArray() 함수는 '배열'로 반환된 결과값을 사용자가 임의로 재정렬하기 위한 유틸리티 함수입니다.
+
+sortResultArray()의 첫번째 매개변수는 정렬할 대상인 결과값 변수를 입력합니다.  형태는 배열입니다.
+
+두번째 매개변수는 결과에서 정렬 기준이 될 필드명을 입력합니다.
+
+세번째 매개변수에는 오름차순과 내림차순을 정의합니다.  오름차순은 SORT\_ASC 이며, 내림차순은 SORT\_DESC 입니다(문자열이 아니라 상수인 것에 유의하세요)
+
+```php
+$result = $this->mongoq->...group() // 그룹연산의 결과가 $result 변수로 반환됩니다.
+
+
+$result = $this->mongoq->sortResultArray( $result, 'name', SORT_ASC );
+// name 필드를 기준으로 오름차순 정렬합니다.
 ```
