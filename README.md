@@ -172,7 +172,7 @@ age가 18 초과인 데이터를 name을 기준으로 오름차순 정렬합니�
 ```php
 $this->mongoq->from('collection');
 $this->mongoq->where('age', '>', 18);
-$this->mongoq->sotr(name, 'asc');
+$this->mongoq->sort('name', 'asc');
 
 $result = $this->mongoq->get();
 ```
