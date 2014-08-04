@@ -240,19 +240,7 @@ class Mongoq{
 
 	public function hint( $hints )
 	{
-		if( is_array( $hints ) )
-		{
-			$this->hint = array();
-
-			foreach( $hints as $hint )
-			{
-				array_push( $this->hint, array( $hint => 1 ) );
-			}
-		}
-		else
-		{
-			$this->hint = array( $hints => 1 );
-		}
+		$this->hint = array( $hints => 1 );
 
 		return ( $this );
 	}
