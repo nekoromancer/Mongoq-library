@@ -1,6 +1,6 @@
 <?php
 /*
- * MongoDB Quick Query Library - Mongoq ver 0.5
+ * MongoDB Quick Query Library - Mongoq ver 0.51
  * www.nekoromancer.kr
  *
  * Author : Nekoromancer
@@ -8,7 +8,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-04-30
+ * Date: 2014-08-04
  */
 
 defined('BASEPATH') OR exit('No direct script access allowed');
@@ -46,19 +46,20 @@ class Mongoq{
 	private $projection = array();
 	private $wheres = array();
 	private $limit = null;
-	private $skip = 0;
-	private $sort = array();
+	private $skip = null;
+	private $sort = null;
 	private $updates = array();
 	private $woptions = array();
+	private $hint = null;
 
 	private $aggregate_options = array();
 
 	public function __construct()
 	{
 		if ( !class_exists('Mongo') )
-        {
-            show_error("The MongoDB PECL extension has not been installed or enabled", 500);
-        }
+    {
+      show_error("The MongoDB PECL extension has not been installed or enabled", 500);
+    }
 
 		$this->CI = get_instance();
 		$this->setConfig();
@@ -237,6 +238,25 @@ class Mongoq{
 		}
 	}
 
+	public function hint( $hints )
+	{
+		if( is_array( $hints ) )
+		{
+			$this->hint = array();
+
+			foreach( $hints as $hint )
+			{
+				array_push( $this->hint, array( $hint => 1 ) );
+			}
+		}
+		else
+		{
+			$this->hint = array( $hints => 1 );
+		}
+
+		return ( $this );
+	}
+
 	/*
 	 * db.collection.find()
 	 * $collection : target collection name
@@ -251,26 +271,22 @@ class Mongoq{
 
 		$collection = &$this->collection;
 
+		$documents = $this->db->{$collection}->find( $this->wheres, $this->projection );
+
+		if( $this->hint )
+			$documents = $documents->hint( $this->hint );
+
+		if( $this->skip )
+			$documents = $documents->skip( $this->skip );
+
 		if( $this->limit )
-		{
-			$documents = $this->db->{$collection}
-														->find( $this->wheres, $this->projection )
-														->skip( $this->skip )
-														->limit( $this->limit )
-														->sort( $this->sort );
-		}
-		else
-		{
-			$documents = $this->db->{$collection}
-														->find( $this->wheres, $this->projection )
-														->skip( $this->skip )
-														->sort( $this->sort );
-		}
+			$documents = $documents->limit( $this->limit );
+
+		if( $this->sort )
+			$documents = $documents->sort( $this->sort );
 
 		if( $return_as_array )
-		{
 			$documents = $this->toArray( $documents );
-		}
 
 		$this->_clear();
 		return $documents;
@@ -1343,8 +1359,9 @@ class Mongoq{
 		$this->collection = null;
 		$this->projection = array();
 		$this->limit = null;
-		$this->skip = 0;
-		$this->sort = array();
+		$this->skip = null;
+		$this->sort = null;
+		$this->hint = null;
 		$this->updates = array();
 		$this->woptinos = array();
 		$this->aggregate_options = array();
