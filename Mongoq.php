@@ -1205,7 +1205,7 @@ class Mongoq{
 			} 
 			catch( MongoConnectionException $e ) 
 			{ 
-				log_message('error', 'MongoDB ERROR: ' . $e->getMessage());
+                log_message('error', 'MongoDB ERROR: ' . $e->getMessage());
 			}
 		}
 		else
@@ -1240,8 +1240,7 @@ class Mongoq{
 		$this->hostname = $this->CI->config->item("hostname");
 		$this->port = $this->CI->config->item("port");
 		$this->replica = $this->CI->config->item("replica_set");
-        $this->connectTimeoutMS = $this->CI->config->item('connectTimeoutMS');
-        var_dump($this->connectTimeoutMS);
+		$this->connectTimeoutMS = $this->CI->config->item('connectTimeoutMS');
 
 		$use_persist = $this->CI->config->item("persist");
 		if( phpversion('mongo') < 1.3 && $use_persist ) 
