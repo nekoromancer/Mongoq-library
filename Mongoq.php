@@ -56,14 +56,14 @@ class Mongoq{
 
 	public function __construct()
 	{
-		if ( !class_exists('Mongo') )
-    {
-      show_error("The MongoDB PECL extension has not been installed or enabled", 500);
-    }
+            if ( !class_exists('Mongo') )
+            {
+                show_error("The MongoDB PECL extension has not been installed or enabled", 500);
+            }
 
-		$this->CI = get_instance();
-		$this->setConfig();
-		$this->connect();
+            $this->CI = &get_instance();
+            $this->setConfig();
+            $this->connect();
 	}
 
 	/*
@@ -841,11 +841,7 @@ class Mongoq{
 			
 			try 
 			{
-				$this->db->{$collection}->update( $query, 
-																				  $this->updates, 
-																				  array( 'upsert' => $upsert,
-																				  			 'multiple	' => $multi,
-																				  			 'writeConcern' => $this->woptions ) );
+				$this->db->{$collection}->update( $query, $this->updates,  array( 'upsert' => $upsert, 'multiple' => $multi, 'writeConcern' => $this->woptions ));
 
 				$this->_clear();
 			} 
@@ -932,11 +928,7 @@ class Mongoq{
 		
 		try 
 		{
-			$result = $this->db->{$collection}->group( $keyf,
-																							   $initial,
-																							   $reduce,
-																							   array( 'condition' => $cond,
-																							   		    'finalize' => $finalize ) );
+			$result = $this->db->{$collection}->group( $keyf, $initial, $reduce, array( 'condition' => $cond, 'finalize' => $finalize ));
 			$this->_clear();
 
 			if( $result[ 'ok' ] == 1 )
@@ -1201,23 +1193,24 @@ class Mongoq{
 		if( phpversion('mongo') >= 1.3 )
 		{
 			$option["replicaSet"] = $this->replica;
-
+            $option["connectTimeoutMS"] = $this->connectTimeoutMS;
+            
 			try 
 			{
 			$this->connection = new MongoClient( $this->connection_string, $option );
 			$this->db = $this->connection->{$this->dbname};
-
+ 
 			return ( $this );
 
 			} 
 			catch( MongoConnectionException $e ) 
-			{
-				die( $e->getMessage() );
+			{ 
+				log_message('error', 'MongoDB ERROR: ' . $e->getMessage());
 			}
 		}
 		else
 		{
-			$option["replicaSet"] = $this->replica_set;
+			$option["replicaSet"] = $this->replica;
 			$option["persist"] = $this->persist;
 
 			try {
@@ -1229,7 +1222,7 @@ class Mongoq{
 			} 
 			catch( MongoConnectionException $e ) 
 			{
-				die( $e->getMessage() );
+                log_message('error', 'MongoDB ERROR: ' . $e->getMessage());
 			}
 		}
 	}
@@ -1247,6 +1240,8 @@ class Mongoq{
 		$this->hostname = $this->CI->config->item("hostname");
 		$this->port = $this->CI->config->item("port");
 		$this->replica = $this->CI->config->item("replica_set");
+        $this->connectTimeoutMS = $this->CI->config->item('connectTimeoutMS');
+        var_dump($this->connectTimeoutMS);
 
 		$use_persist = $this->CI->config->item("persist");
 		if( phpversion('mongo') < 1.3 && $use_persist ) 
@@ -1274,7 +1269,7 @@ class Mongoq{
 												 $this->password."@".
 												 $this->hostname.":".
 												 $this->port."/".
-  											 $this->dbname;
+                                                                                                 $this->dbname;
 
 		$this->connection_string = $connection_string;
 	}
@@ -1365,18 +1360,17 @@ class Mongoq{
 		{
 			$this->wheres[ $logical_operator ] = array();
 		}
-
+                
 		foreach( $where as $items )
 		{
 			$field = $items[0];
 			$operator = $items[1];
 			$value = $items[2];
-
 			$expression = $this->createExpression( $field, $operator, $value );
 
 			array_push( $this->wheres[ $logical_operator ], $expression );
 		}
-
+                
 		unset( $field );
 		unset( $values );
 	}
@@ -1396,7 +1390,7 @@ class Mongoq{
 		{
 			$operator = strtolower( $operator );
 			$operator = $this->_setOperator( $operator );
-
+                        
 			if( !$operator )
 			{
 				echo $field.$operator.$value;
@@ -1482,4 +1476,16 @@ class Mongoq{
 			show_error( $from." : Collection name is must be required", 500 );
 		}
 	}
+    
+    /**
+     * Check ethier the mongo connection was installed successfully or not
+     */
+    public function isConnected()
+    {
+        if($this->connection && $this->connection instanceof MongoClient) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
