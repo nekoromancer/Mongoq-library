@@ -8,5 +8,6 @@ $config["dbname"] = "Enter your Database name for use";
 $config["persist"] = true; // default : true
 $config["persist_key"] = "ci_mongodb_persist";
 $config["replica_set"] = false; // default : false;
+$config["connectTimeoutMS"] = 3000;// default : 3 seconds
 
-?>
+/* End of file mongo.php */
