@@ -389,7 +389,7 @@ class Mongoq{
 
 	public function skip( $skip = null )
 	{
-		if( $skip && gettype( $skip ) === 'integer' )
+		if( gettype( $skip ) === 'integer' && $skip >= 0 )
 		{
 			$this->skip = $skip;
 		}
